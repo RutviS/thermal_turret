@@ -436,13 +436,13 @@ int main(void)
 	  clear_i2c_busy();
 
 	  if(sees_face()){
-		  if(target_left()){
+		  if(target_right()){
 			  printf("Targeting left\r\n");
 			  if(yaw < SERVO_YAW_MAX_ANGLE){
 				yaw = yaw + 1;
 			  }
 		  }
-		  if(target_right()){
+		  if(target_left()){
 			  printf("Targeting right\r\n");
 			  if(yaw > -SERVO_YAW_MAX_ANGLE){
 				  yaw = yaw - 1;
@@ -469,15 +469,32 @@ int main(void)
 		  	  char buf[100];
 			  gcvt(temp, 8, buf);
 
-		  	  if (temp > 80){
+		  	  if (temp > 70){
+
 		  		  OpenLCD_begin(&hi2c1);
 		  		  OpenLCD_setFastBacklightrgb(240, 27, 105);
 		  		  OpenLCD_setContrast(0);
 				  OpenLCD_setCursor(0, 0);
 				  OpenLCD_writebuff(buf, 6);
 
+				  // then read from touch sensor
+				  float touch_temp = read_temperature_blocking();
+				  char touch_buf[100];
+				  gcvt(touch_temp, 8, touch_buf);
+
+				  if(touch_temp > 70){
+					  // display the touch sensor temperature
+					  OpenLCD_setFastBacklightrgb(128, 15, 25);
+				  }
+				  else{
+					  OpenLCD_setFastBacklightrgb(15, 128, 45);
+				  }
+				  OpenLCD_setContrast(0);
+				  OpenLCD_setCursor(0, 0);
+				  OpenLCD_writebuff(touch_buf, 6);
 		  	  }
 		  	  else{
+
 				  //display the high temperature
 		  		  OpenLCD_begin(&hi2c1);
 		  		  OpenLCD_setFastBacklightrgb(27, 240, 69);
@@ -485,16 +502,7 @@ int main(void)
 		  		  OpenLCD_setCursor(0, 0);
 		  		  OpenLCD_writebuff(buf, 6);
 				  
-				  // then read from touch sensor
-		  		  float touch_temp = read_temperature_blocking;
-		  		  char touch_buf[100];
-		  		  gcvt(touch_temp, 8, touch_buf);
-		  		  OpenLCD_begin(&hi2c1);
-		  		  // display the touch sensor temperature
-				  OpenLCD_setFastBacklightrgb(95,158,160);
-				  OpenLCD_setContrast(0);
-				  OpenLCD_setCursor(0, 0);
-				  OpenLCD_writebuff(touch_buf, 6);
+
 		  	  }
 	  	  }
 	  }
